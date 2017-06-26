@@ -38,9 +38,25 @@ public class Config
     private boolean hasToBeUpdated = false;
     
     //-------------------------------------------------------------------------
+    //////////////////////////////  Constructor ///////////////////////////////
+    //-------------------------------------------------------------------------
+
+    public Config()
+    {
+        super();
+        p = getAlphabeticalSortedProperties();
+        update();
+    }
+    
+    //-------------------------------------------------------------------------
     ///////////////////////  Getter and Setter Methods ////////////////////////
     //-------------------------------------------------------------------------
 
+    public File getFile()
+    {
+        return file;
+    }
+    
     public String getPath(String key)
     {
         return Util.normalizePath(get(key));
@@ -97,7 +113,6 @@ public class Config
         {
             p.clear();
         }
-        p = getAlphabeticalSortedProperties();
         if (f.exists())
         {
             try (InputStream is = new FileInputStream(f)) {
@@ -115,6 +130,16 @@ public class Config
     
     public void save()
     {
+        if (file == null)
+        {
+            throw new IllegalStateException("The save() method can only be called after loading a file.");
+        }
+        save(file);
+    }
+    
+    public void save(File file)
+    {
+        this.file = file;
         if (!beforeSave())
         {
             return;
@@ -173,7 +198,7 @@ public class Config
         
         checkDefaultProperties();
         
-        if (hasToBeUpdated)
+        if (hasToBeUpdated && file != null)
         {
             save();
         }

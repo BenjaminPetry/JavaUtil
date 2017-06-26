@@ -40,6 +40,10 @@ public class ResourceManager
     public static void init(String path)
     {
         resourcePath = Util.normalizePath(path);
+        if (!resourcePath.startsWith("/"))
+        {
+            resourcePath = "/"+resourcePath;
+        }
     }
     
     //-------------------------------------------------------------------------
@@ -54,7 +58,7 @@ public class ResourceManager
      */
     public static URL get(String filename)
     {
-        return ResourceManager.class.getResource("/"+resourcePath + filename);
+        return ResourceManager.class.getResource(resourcePath + filename);
     }
     
     /**

@@ -54,7 +54,7 @@ public class DataSinkFactory
         {
             throw new IllegalArgumentException("The type '"+type+"' is not a registered database type and cannot be used.");
         }
-        if (!instance.connect(host, user, password, dbname, logPath, prefix))
+        if (!instance.connect(host, user, password, dbname, prefix, logPath))
         {
             throw new IllegalStateException("Could not connect to database. All transactions won't be executed!");
         }
@@ -90,16 +90,12 @@ public class DataSinkFactory
         return null;
     }
     
-    //-------------------------------------------------------------------------
-    //////////////////////////  Private Static Methods ////////////////////////
-    //-------------------------------------------------------------------------
-    
     /**
      * Sets up all the tables based on the given reader.
      * @param reader Set to null if no setup required
      * @return true if setting up the database was successful.
      */
-    private static boolean setupDatabase(Reader reader)
+    public static boolean setupDatabase(Reader reader)
     {
         if (reader == null)
         {

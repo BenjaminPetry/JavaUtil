@@ -7,6 +7,7 @@
 package de.bpetry.data;
 
 import de.bpetry.util.Util;
+import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -30,19 +31,22 @@ public class DB
     //-------------------------------------------------------------------------
 
     private static IDataSink sink = null;
+    private static DBConfig config;
             
     
     public static boolean init(DBConfig config)
     {
-        if (sink == null)
+        if (sink != null)
         {
-            return true;
+            dispose();
         }
-        if (!DataSinkFactory.initDataSink(config.getType(), config.getHost(), config.getUser(), config.getPassword(), config.getDbname(), config.getPrefix(), config.getLogPath(), config.getInitResource()))
+        Reader initSourceReader = config.isAutoSetup() ? config.getInitResource() : null;
+        if (!DataSinkFactory.initDataSink(config.getType(), config.getHost(), config.getUser(), config.getPassword(), config.getDbname(), config.getPrefix(), config.getLogPath(), initSourceReader))
         {
             return false;
         }
         sink = DataSinkFactory.getInstance();
+        DB.config = config;
         return true;
     }
     
@@ -56,72 +60,77 @@ public class DB
     /////////////////////////////  Public Methods /////////////////////////////
     //-------------------------------------------------------------------------
     
-    public boolean isConnected()
+    public static boolean setup()
+    {
+        return DataSinkFactory.setupDatabase(config.getInitResource());
+    }
+    
+    public static boolean isConnected()
     {
         return sink != null;
     }
     
-    public int count(String table, String whereclause, Object... parameters)
+    public static int count(String table, String whereclause, Object... parameters)
     {
         return sink.count(table, whereclause, parameters);
     }
 
-    public ResultSet select(String query, Object... parameters)
+    public static ResultSet select(String query, Object... parameters)
     {
         return sink.select(query, parameters);
     }
 
-    public boolean selectSet(String query)
+    public static boolean selectSet(String query)
     {
         return sink.selectSet(query);
     }
 
-    public ResultSet selectExecute(Object... parameters)
+    public static ResultSet selectExecute(Object... parameters)
     {
         return sink.selectExecute(parameters);
     }
 
-    public int insert(String query, Object... parameters)
+    public static int insert(String query, Object... parameters)
     {
         return sink.insert(query, parameters);
     }
 
-    public boolean insertSet(String query)
+    public static boolean insertSet(String query)
     {
         return sink.insertSet(query);
     }
 
-    public int insertExecute(Object... parameters)
+    public static int insertExecute(Object... parameters)
     {
         return sink.insertExecute(parameters);
     }
 
-    public int update(String query, Object... parameters)
+    public static int update(String query, Object... parameters)
     {
         return sink.update(query, parameters);
     }
 
-    public boolean updateSet(String query)
+    public static boolean updateSet(String query)
     {
         return sink.updateSet(query);
     }
 
-    public int updateExecute(Object... parameters)
+    public static int updateExecute(Object... parameters)
     {
         return sink.updateExecute(parameters);
     }
 
-    public int delete(String query, Object... parameters)
+    public static int delete(String query, Object... parameters)
     {
         return sink.delete(query, parameters);
     }
 
-    public boolean deleteSet(String query)
+    public static boolean deleteSet(String query)
     {
         return sink.deleteSet(query);
     }
 
-    public int deleteExecute(Object... parameters)
+    public static int deleteExecute(Object... parameters)
     {
         return sink.deleteExecute(parameters);
     }

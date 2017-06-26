@@ -43,6 +43,7 @@ public class DBConfig
     private String prefix = "";
     private String logPath = null;
     private Reader initReader = null;
+    private boolean autoSetup = false;
     
     //-------------------------------------------------------------------------
     //////////////////////////////  Constructor ///////////////////////////////
@@ -143,6 +144,16 @@ public class DBConfig
         return prefix;
     }
 
+    public boolean isAutoSetup()
+    {
+        return autoSetup;
+    }
+    
+    public void enableAutoSetup()
+    {
+        autoSetup = true;
+    }
+    
     public String getLogPath()
     {
         return logPath;
@@ -182,10 +193,14 @@ public class DBConfig
         {
             config.setLogPath(c.get(CONFIG_LOG_PATH));
         }
+        if (initFilename != null)
+        {
+            config.setInitResource(ResourceManager.read(initFilename));
+        }
         
         if (c.getBool(CONFIG_SETUP))
         {
-            config.setInitResource(ResourceManager.read(initFilename));
+            config.enableAutoSetup();
         }
         
         return config;

@@ -63,7 +63,7 @@ public abstract class SQLDataSink implements IDataSink
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy_HHmm");
             String dateS = sdf.format(new Date());
             log = null;
-            if (logPath != null)
+            if (logPath != null && !logPath.isEmpty())
             {
                 String filename = Util.normalizePath(logPath)+"db_"+dateS+".sql.tmp";
                 log = new FileWriter(new File(filename), true);
