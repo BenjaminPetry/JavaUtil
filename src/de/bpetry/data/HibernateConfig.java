@@ -49,7 +49,7 @@ public class HibernateConfig
     //-------------------------------------------------------------------------
 
     /**
-     * Creates the login information for a database
+     * Creates the login information for hibernate
      * @param type the type of the database
      * @param host the IP of the host
      * @param user the username to login
@@ -63,6 +63,15 @@ public class HibernateConfig
         this.user = user;
         this.password = password;
         this.dbname = dbname;
+    }
+    
+    /**
+     * Creates login information for hibernate from a config file
+     * @param c 
+     */
+    public HibernateConfig(Config c)
+    {
+        this(c.get(CONFIG_TYPE),c.get(CONFIG_HOST),c.get(CONFIG_USER),c.get(CONFIG_PASSWORD),c.get(CONFIG_DBNAME));
     }
     
     //-------------------------------------------------------------------------
@@ -110,21 +119,6 @@ public class HibernateConfig
         return dbname;
     }
 
-    //-------------------------------------------------------------------------
-    /////////////////////////  Public Static Methods //////////////////////////
-    //-------------------------------------------------------------------------
-    
-    public static HibernateConfig fromConfig(Config c)
-    {
-        String type = c.get(CONFIG_TYPE);
-        String host = c.get(CONFIG_HOST);
-        String user = c.get(CONFIG_USER);
-        String password = c.get(CONFIG_PASSWORD);
-        String dbname = c.get(CONFIG_DBNAME);
-        HibernateConfig config = new HibernateConfig(type, host, user, password, dbname);
-        return config;
-    }
-    
     public void save(Config c)
     {
         c.set(CONFIG_TYPE, this.getType());
