@@ -49,6 +49,18 @@ public class HibernateSession
     /////////////////////////  Public Static Methods //////////////////////////
     //-------------------------------------------------------------------------
 
+    public static <T extends Object> void saveAll(Iterable<T> iter)
+    {
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        for (T obj : iter)
+        {
+            session.save( obj );
+        }
+        session.getTransaction().commit();
+        session.close();
+    }
+    
     public static void save(Object... arrayOfObjects)
     {
         Session session = sessionFactory.openSession();
@@ -65,7 +77,7 @@ public class HibernateSession
     {
         Session session = sessionFactory.openSession();
         session.beginTransaction();
-        List result = session.createQuery( "from Event" ).list();
+        List result = session.createQuery(query).list();
         session.getTransaction().commit();
         session.close();
         return result;
