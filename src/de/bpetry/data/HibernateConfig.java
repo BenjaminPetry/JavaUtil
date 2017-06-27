@@ -114,7 +114,7 @@ public class HibernateConfig
     /////////////////////////  Public Static Methods //////////////////////////
     //-------------------------------------------------------------------------
     
-    public static HibernateConfig fromConfig(Config c, String initFilename)
+    public static HibernateConfig fromConfig(Config c)
     {
         String type = c.get(CONFIG_TYPE);
         String host = c.get(CONFIG_HOST);
