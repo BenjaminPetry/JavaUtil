@@ -7,10 +7,12 @@
 package de.bpetry.data.observer;
 
 /**
- * An observable tree set
+ *
  * @author Benjamin Petry
+ * @param <T> the parent's type
+ * @param <E> the collection's element's type
  */
-public class ObservableParentTreeSet<T,E> extends ObservableTreeSet<E>
+public class ObservableParentSetWrapper<T,E> extends ObservableSetWrapper<E>
 {
     //-------------------------------------------------------------------------
     ////////////////////////////  Private Variables ///////////////////////////
@@ -23,12 +25,41 @@ public class ObservableParentTreeSet<T,E> extends ObservableTreeSet<E>
     //////////////////////////////  Constructor ///////////////////////////////
     //-------------------------------------------------------------------------
 
-    public ObservableParentTreeSet() {}
     
-    public ObservableParentTreeSet(ICollectionParentListener<T,E> parentAction, T parent)
+    //-------------------------------------------------------------------------
+    /////////////////////////////  Public Methods /////////////////////////////
+    //-------------------------------------------------------------------------
+
+    public ICollectionParentListener<T, E> getParentAction()
+    {
+        return parentAction;
+    }
+
+    public void setParentAction(ICollectionParentListener<T, E> parentAction)
+    {
+        this.parentAction = parentAction;
+    }
+
+    public T getParent()
+    {
+        return parent;
+    }
+
+    public void setParent(T parent)
     {
         this.parent = parent;
-        this.parentAction = parentAction;
+    }
+
+    //-------------------------------------------------------------------------
+    /////////////////////////////  Public Methods /////////////////////////////
+    //-------------------------------------------------------------------------
+
+    public static <T,E> ObservableParentSetWrapper<T,E> create(T parent, ICollectionParentListener<T, E> parentAction)
+    {
+        ObservableParentSetWrapper<T,E> wrapper = new ObservableParentSetWrapper<>();
+        wrapper.setParent(parent);
+        wrapper.setParentAction(parentAction);
+        return wrapper;
     }
     
     //-------------------------------------------------------------------------
@@ -39,7 +70,7 @@ public class ObservableParentTreeSet<T,E> extends ObservableTreeSet<E>
     protected void throwEvent(CollectionAction actionType, E item)
     {
         super.throwEvent(actionType, item);
-        if (parentAction != null)
+        if (parentAction != null && item != null)
         {
             T par = (actionType.isAddAction()) ? parent : null;
             parentAction.onParentChange(par, item);

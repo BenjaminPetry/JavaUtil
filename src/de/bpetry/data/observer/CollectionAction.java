@@ -14,7 +14,10 @@ public enum CollectionAction
 {
     Add,
     AddAll,
+    SetInsert,
+    SetRemoved,
     Remove,
+    RemoveAll,
     Clear;
     
     //-------------------------------------------------------------------------
@@ -23,11 +26,11 @@ public enum CollectionAction
     
     public boolean isAddAction()
     {
-        return this == Add || this == AddAll;
+        return this == Add || this == AddAll || this == SetInsert;
     }
     
     public boolean isRemoveAction()
     {
-        return this == Remove || this == AddAll;
+        return this == Remove || this == AddAll || this == RemoveAll || this == SetRemoved;
     }
 }
