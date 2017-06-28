@@ -5,6 +5,7 @@
  */
 package de.bpetry.data;
 
+import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -20,7 +21,8 @@ public class HibernateSession
     ////////////////////////  Private Static Variables ////////////////////////
     //-------------------------------------------------------------------------
     
-    private static SessionFactory sessionFactory;
+    private static SessionFactory sessionFactory = null;
+    private static Session openedSession = null;
     
     //-------------------------------------------------------------------------
     ////////////////////////////  Init and Dispose ////////////////////////////
@@ -34,12 +36,18 @@ public class HibernateSession
         }
         Configuration config = createConfiguration(hbConfig);
         sessionFactory = config.buildSessionFactory();
+        openedSession = sessionFactory.openSession();
     }
-    
     
     public static void dispose()
     {
-        if ( sessionFactory != null ) {
+        if (openedSession != null)
+        {
+            openedSession.close();
+            openedSession = null;
+        }
+        if ( sessionFactory != null )
+        {
             sessionFactory.close();
             sessionFactory = null;
         }
@@ -49,38 +57,56 @@ public class HibernateSession
     /////////////////////////  Public Static Methods //////////////////////////
     //-------------------------------------------------------------------------
 
-    public static <T extends Object> void saveAll(Iterable<T> iter)
+    public static <T extends Object> void delete(Iterable<T> iter)
     {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        for (T obj : iter)
-        {
-            session.save( obj );
-        }
-        session.getTransaction().commit();
-        session.close();
+        executeTransaction((session) -> {
+            for (T obj : iter)
+            {
+                session.delete( obj );
+            }
+            return null;
+        });
+    }
+    
+    public static void delete(Object... arrayOfObjects)
+    {
+        delete(Arrays.asList(arrayOfObjects));
+    }
+    
+    public static <T extends Object> void save(Iterable<T> iter)
+    {
+        executeTransaction((session) -> {
+            for (T obj : iter)
+            {
+                session.saveOrUpdate(obj);
+            }
+            return null;
+        });
     }
     
     public static void save(Object... arrayOfObjects)
     {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        for (Object obj : arrayOfObjects)
-        {
-            session.save( obj );
-        }
-        session.getTransaction().commit();
-        session.close();
+        save(Arrays.asList(arrayOfObjects));
     }
     
     public static List get(String query)
     {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        List result = session.createQuery(query).list();
-        session.getTransaction().commit();
-        session.close();
+        return executeTransaction((session) -> {
+            return session.createQuery(query).list();
+        });
+    }
+    
+    public static List executeTransaction(TransactionAction action)
+    {
+        openedSession.beginTransaction();
+        List result = action.perform(openedSession);
+        openedSession.getTransaction().commit();
         return result;
+    }
+    
+    public static interface TransactionAction
+    {
+        public List perform(Session session);
     }
     
     //-------------------------------------------------------------------------
