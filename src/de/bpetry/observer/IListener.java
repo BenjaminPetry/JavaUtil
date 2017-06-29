@@ -13,5 +13,5 @@ package de.bpetry.observer;
  */
 public interface IListener<T extends Event>
 {
-    public void onEvent(T e);
+    public void onEvent(Object sender, T e);
 }

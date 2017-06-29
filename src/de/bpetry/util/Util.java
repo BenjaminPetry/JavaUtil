@@ -120,4 +120,20 @@ public class Util
         }
         return path;
     }
+    
+    public static Thread run(Runnable r)
+    {
+        Thread t = new Thread(r);
+        t.start();
+        return t;
+    }
+    
+    public static Thread timer(int triggerInMS, Runnable r)
+    {
+        return run(() ->
+        {
+            Util.sleep(triggerInMS);
+            r.run();
+        });
+    }
 }

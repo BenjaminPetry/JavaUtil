@@ -20,6 +20,7 @@ public class EventHandler<T extends Event>
     ////////////////////////////  Private Variables ///////////////////////////
     //-------------------------------------------------------------------------
     private final Set<IListener> setOfListener = new HashSet<>();
+    private boolean abort = false;
     
     //-------------------------------------------------------------------------
     /////////////////////////////  Public Methods /////////////////////////////
@@ -41,14 +42,32 @@ public class EventHandler<T extends Event>
         }
     }
     
-    public void throwEvent(T event)
+    public void abort()
     {
+        abort = true;
+    }
+    
+    public boolean throwEvent(T event)
+    {
+        return throwEvent(null, event);
+    }
+    
+    public boolean throwEvent(Object sender, T event)
+    {
+        abort = false;
         synchronized(setOfListener)
         {
             for (IListener<T> listener : setOfListener)
             {
-                listener.onEvent(event);
+                listener.onEvent(sender, event);
+                if (abort)
+                {
+                    break;
+                }
             }
         }
+        boolean tmp = abort;
+        abort = false;
+        return !tmp;
     }
 }
