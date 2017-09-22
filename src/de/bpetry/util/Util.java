@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 
 /**
  * Utility functions
@@ -17,6 +18,14 @@ import java.util.logging.Logger;
  */
 public class Util
 {
+    
+    public static void executeLaterUI(int ms, Runnable run)
+    {
+        new Thread(() -> {
+            sleep(ms);
+            Platform.runLater(() -> run.run());
+       }).start();
+    }
     
     public static void sleep(int ms)
     {
