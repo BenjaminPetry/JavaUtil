@@ -7,41 +7,45 @@
 package de.bpetry.data.observer;
 
 /**
- * Describes actions that may be executed on collections
+ * Describes a collection event
  * @author Benjamin Petry
  */
-public enum CollectionAction
+public class CollectionEvent<E>
 {
-    Add(CollectionActionCategory.Add),
-    AddAll(CollectionActionCategory.Add),
-    SetInsert(CollectionActionCategory.Add),
-    SetRemoved(CollectionActionCategory.Remove),
-    Remove(CollectionActionCategory.Remove),
-    RemoveAll(CollectionActionCategory.Remove),
-    Clear(CollectionActionCategory.Remove),
-    Update(CollectionActionCategory.Update);// for lists, when an element's position has changed
-    
     //-------------------------------------------------------------------------
     ////////////////////////////  Private Variables ///////////////////////////
     //-------------------------------------------------------------------------
-
-    private CollectionActionCategory category;
+    
+    private final CollectionAction action;
+    private final E element;
     
     //-------------------------------------------------------------------------
     //////////////////////////////  Constructor ///////////////////////////////
     //-------------------------------------------------------------------------
 
-    CollectionAction(CollectionActionCategory category)
+    public CollectionEvent(CollectionAction action, E element)
     {
-        this.category = category;
+        this.action = action;
+        this.element = element;
     }
     
     //-------------------------------------------------------------------------
     /////////////////////////////  Public Methods /////////////////////////////
     //-------------------------------------------------------------------------
 
-    public CollectionActionCategory getCategory()
+    public CollectionAction getAction()
     {
-        return this.category;
+        return action;
     }
+
+    public E getElement()
+    {
+        return element;
+    }
+    
+    public CollectionActionCategory getActionCategory()
+    {
+        return action.getCategory();
+    }
+
 }

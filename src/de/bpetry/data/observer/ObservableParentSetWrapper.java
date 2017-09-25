@@ -67,13 +67,13 @@ public class ObservableParentSetWrapper<T,E> extends ObservableSetWrapper<E>
     //-------------------------------------------------------------------------
     
     @Override
-    protected void throwEvent(CollectionAction actionType, E item)
+    protected void throwEvent(CollectionEvent<E> event)
     {
-        super.throwEvent(actionType, item);
-        if (parentAction != null && item != null)
+        super.throwEvent(event);
+        if (parentAction != null && event.getElement() != null)
         {
-            T par = (actionType.isAddAction()) ? parent : null;
-            parentAction.onParentChange(par, item);
+            T par = (event.getActionCategory() == CollectionActionCategory.Add) ? parent : null;
+            parentAction.onParentChange(par, event.getElement());
         }
     }
 }

@@ -8,6 +8,7 @@ package de.bpetry.data.observer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -84,11 +85,13 @@ public class ObservableListWrapper<E> extends ObservableCollectionWrapper<E> imp
     public boolean addAll(int index,
             Collection<? extends E> c)
     {
+        int counter = index;
         if (getList().addAll(index, c))
         {
             for (E tmp : c)
             {
-                throwEvent(CollectionAction.AddAll, tmp);
+                throwEvent(new ListEvent(CollectionAction.AddAll, tmp, counter));
+                counter++;
             }
             return true;
         }
@@ -99,8 +102,8 @@ public class ObservableListWrapper<E> extends ObservableCollectionWrapper<E> imp
     public E set(int index, E element)
     {
         E oldElement = getList().set(index, element);
-        throwEvent(CollectionAction.SetRemoved, oldElement);
-        throwEvent(CollectionAction.SetInsert, element);
+        throwEvent(new ListEvent(CollectionAction.SetRemoved, oldElement, index));
+        throwEvent(new ListEvent(CollectionAction.SetInsert, element, index));
         return oldElement;
     }
 
@@ -108,14 +111,14 @@ public class ObservableListWrapper<E> extends ObservableCollectionWrapper<E> imp
     public void add(int index, E element)
     {
         getList().add(index, element);
-        throwEvent(CollectionAction.Add, element);
+        throwEvent(new ListEvent(CollectionAction.Add, element, index));
     }
 
     @Override
     public E remove(int index)
     {
         E oldElement = getList().remove(index);
-        throwEvent(CollectionAction.Remove, oldElement);
+        throwEvent(new ListEvent(CollectionAction.Remove, oldElement, index));
         return oldElement;
     }
 
@@ -123,6 +126,27 @@ public class ObservableListWrapper<E> extends ObservableCollectionWrapper<E> imp
     protected Collection<E> defaultCollection()
     {
         return new ArrayList<>();
+    }
+    
+    public void moveElement(E element, int indexNew)
+    {
+        int indexOld = getList().indexOf(element);
+        if (indexOld == -1)
+        {
+            throw new IllegalArgumentException("Element is not in the list and hence, cannot be moved inside the list");
+        }
+        else if (indexOld == indexNew)
+        {
+            return;
+        }
+        int indexMin = Math.min(indexNew, indexOld);
+        int indexMax = Math.max(indexNew, indexOld);
+        int rotationDirection = (indexMax == indexOld) ? 1 : -1;
+        Collections.rotate(this.getList().subList(indexMin, indexMax+1),rotationDirection);
+        for (int n = indexMin; n <= indexMax; n++)
+        {
+            throwEvent(new ListEvent(CollectionAction.Update, this.getList().get(n), n));
+        }
     }
     
 }

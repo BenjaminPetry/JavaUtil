@@ -9,12 +9,12 @@ package de.bpetry.data.observer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author Benjamin Petry
  * @param <E> the collection's element's type
- * @param <U> the collection's type
  */
 public class ObservableCollectionWrapper<E> implements Collection<E>
 {
@@ -122,11 +122,13 @@ public class ObservableCollectionWrapper<E> implements Collection<E>
     public boolean addAll(
             Collection<? extends E> c)
     {
+        int index = (this.getCollection() instanceof List) ? this.getCollection().size() : -1; // specially implemented for lists
         if (instance.addAll(c))
         {
             for (E tmp : c)
             {
-                throwEvent(CollectionAction.AddAll, tmp);
+                throwEvent(CollectionAction.AddAll, tmp, index);
+                index += (index == -1) ? 0 : 1;
             }
             return true;
         }
@@ -139,9 +141,9 @@ public class ObservableCollectionWrapper<E> implements Collection<E>
     {
         for (Object tmp : c)
         {
-            if (instance.contains(tmp))
+            if (instance.contains((E)tmp))
             {
-                throwEvent(CollectionAction.RemoveAll, (E)tmp);
+                throwEvent(CollectionAction.RemoveAll, (E)tmp, getIndex((E)tmp));
             }
         }
         return instance.removeAll(c);
@@ -153,7 +155,7 @@ public class ObservableCollectionWrapper<E> implements Collection<E>
     {
         for (E tmp : this)
         {
-            throwEvent(CollectionAction.Clear, tmp);
+            throwEvent(CollectionAction.Clear, tmp, getIndex(tmp));
         }
         instance.clear();
     }
@@ -163,7 +165,7 @@ public class ObservableCollectionWrapper<E> implements Collection<E>
     {
         if(instance.add(e))
         {
-            throwEvent(CollectionAction.Add, e);
+            throwEvent(CollectionAction.Add, e, getIndex(e));
             return true;
         }
         return false;
@@ -172,9 +174,10 @@ public class ObservableCollectionWrapper<E> implements Collection<E>
     @Override
     public boolean remove(Object o)
     {
+        int index = (this.getCollection() instanceof List) ? this.getCollection().size() : -1; // specially implemented for lists
         if(instance.remove(o))
         {
-            throwEvent(CollectionAction.Remove, (E)o);
+            throwEvent(CollectionAction.Remove, (E)o, index);
             return true;
         }
         return false;
@@ -202,17 +205,34 @@ public class ObservableCollectionWrapper<E> implements Collection<E>
     ////////////////////////////  Protected Methods ///////////////////////////
     //-------------------------------------------------------------------------
 
-    protected void throwEvent(CollectionAction actionType, E item)
+    protected void throwEvent(CollectionAction action, E element, int index)
     {
-        if (action != null && item != null)
+        CollectionEvent event = (index == -1) ?
+                new CollectionEvent(action, element) :
+                new ListEvent(action, element, index);
+        throwEvent(event);
+    }
+    
+    protected void throwEvent(CollectionEvent<E> event)
+    {
+        if (action != null && event.getElement() != null)
         {
-            action.onEvent(actionType, item);
+            action.onEvent(event);
         }
     }
     
     protected Collection<E> defaultCollection()
     {
-        return new ArrayList<E>();
+        return new ArrayList<>();
+    }
+
+    private int getIndex(E object)
+    {
+        if (getCollection() instanceof List)
+        {
+            return ((List)getCollection()).indexOf(object);
+        }
+        return -1;
     }
     
 }

@@ -7,41 +7,33 @@
 package de.bpetry.data.observer;
 
 /**
- * Describes actions that may be executed on collections
+ * Describes a list event that extends the collection event with the position of the element where the event took place
  * @author Benjamin Petry
  */
-public enum CollectionAction
+public class ListEvent<E> extends CollectionEvent<E>
 {
-    Add(CollectionActionCategory.Add),
-    AddAll(CollectionActionCategory.Add),
-    SetInsert(CollectionActionCategory.Add),
-    SetRemoved(CollectionActionCategory.Remove),
-    Remove(CollectionActionCategory.Remove),
-    RemoveAll(CollectionActionCategory.Remove),
-    Clear(CollectionActionCategory.Remove),
-    Update(CollectionActionCategory.Update);// for lists, when an element's position has changed
-    
     //-------------------------------------------------------------------------
     ////////////////////////////  Private Variables ///////////////////////////
     //-------------------------------------------------------------------------
-
-    private CollectionActionCategory category;
+    private final int index;
     
     //-------------------------------------------------------------------------
     //////////////////////////////  Constructor ///////////////////////////////
     //-------------------------------------------------------------------------
 
-    CollectionAction(CollectionActionCategory category)
+    public ListEvent(CollectionAction action, E element, int index)
     {
-        this.category = category;
+        super(action, element);
+        this.index = index;
     }
     
     //-------------------------------------------------------------------------
     /////////////////////////////  Public Methods /////////////////////////////
     //-------------------------------------------------------------------------
 
-    public CollectionActionCategory getCategory()
+    public int getIndex()
     {
-        return this.category;
+        return index;
     }
+
 }

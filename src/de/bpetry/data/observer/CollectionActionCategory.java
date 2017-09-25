@@ -7,11 +7,12 @@
 package de.bpetry.data.observer;
 
 /**
- * Listens to events of a collection
+ * Describes the categories of the specific actions
  * @author Benjamin Petry
- * @param <E> the collection item's class
  */
-public interface ICollectionListener<E>
+public enum CollectionActionCategory
 {
-    public void onEvent(CollectionEvent<E> event);
+    Add,
+    Remove,
+    Update;
 }
