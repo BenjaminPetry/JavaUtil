@@ -7,11 +7,13 @@
 package de.bpetry.util;
 
 import java.util.Optional;
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
 /**
  * Shortcuts for displaying dialogs
+ *
  * @author Benjamin Petry
  */
 public class Dialog
@@ -19,27 +21,13 @@ public class Dialog
     //-------------------------------------------------------------------------
     ////////////////////////  Private Static Variables ////////////////////////
     //-------------------------------------------------------------------------
-    
-    private static long mainThreadId;
+
     private static boolean dialogOpen = false;
     private static Optional<ButtonType> dialogResult;
-    
-    //-------------------------------------------------------------------------
-    ////////////////////////////  Init and Dispose ////////////////////////////
-    //-------------------------------------------------------------------------
-    
-    /**
-     * Has to be called from main Thread!
-     */
-    public static void init()
-    {
-        mainThreadId = Thread.currentThread().getId();
-    }
-    
+
     //-------------------------------------------------------------------------
     /////////////////////////  Public Static Methods //////////////////////////
     //-------------------------------------------------------------------------
-    
     // Help functions to display dialogs, such as errors, warnings or confirm-dialogs
     public static void error(String message)
     {
@@ -55,10 +43,11 @@ public class Dialog
     {
         dialog(Alert.AlertType.INFORMATION, "Information", message);
     }
-    
+
     public static boolean confirm(String message)
     {
-        Optional<ButtonType> result = dialog(Alert.AlertType.CONFIRMATION, "Confirmation", message);
+        Optional<ButtonType> result = dialog(Alert.AlertType.CONFIRMATION,
+                "Confirmation", message);
         return result != null && result.get() == ButtonType.OK;
     }
 
@@ -67,7 +56,7 @@ public class Dialog
     {
         dialogOpen = true;
         dialogResult = null;
-        if (Thread.currentThread().getId() == mainThreadId)
+        if (Platform.isFxApplicationThread())
         {
             openDialog(type, title, message);
         }
@@ -84,20 +73,19 @@ public class Dialog
         }
         return dialogResult;
     }
-    
+
     //-------------------------------------------------------------------------
     //////////////////////////  Private Static Methods ////////////////////////
     //-------------------------------------------------------------------------
-    
     private static void openDialog(Alert.AlertType type, String title,
             String message)
     {
-            Alert alert = new Alert(type);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            
-            dialogResult = alert.showAndWait();
-            dialogOpen = false;
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        dialogResult = alert.showAndWait();
+        dialogOpen = false;
     }
 }

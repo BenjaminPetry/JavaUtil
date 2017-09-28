@@ -14,19 +14,21 @@ import javafx.application.Platform;
 
 /**
  * Utility functions
+ *
  * @author Benjamin Petry
  */
 public class Util
 {
-    
+
     public static void executeLaterUI(int ms, Runnable run)
     {
-        new Thread(() -> {
+        new Thread(() ->
+        {
             sleep(ms);
             Platform.runLater(() -> run.run());
-       }).start();
+        }).start();
     }
-    
+
     public static void sleep(int ms)
     {
         try
@@ -38,7 +40,7 @@ public class Util
             Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public static String doubleArrayToString(double[] array)
     {
         StringBuilder buf = new StringBuilder();
@@ -52,7 +54,7 @@ public class Util
         }
         return buf.toString();
     }
-    
+
     public static double[] stringToDoubleArray(String s)
     {
         String[] onsetsS = s.split(";");
@@ -65,9 +67,10 @@ public class Util
         }
         return dArray;
     }
-    
+
     /**
      * Assumes all integers are < 10
+     *
      * @param array the integer array
      * @return the array as string
      */
@@ -80,7 +83,7 @@ public class Util
         }
         return b.toString();
     }
-    
+
     public static int[] stringToIntArray(String s)
     {
         char[] array = s.toCharArray();
@@ -91,52 +94,58 @@ public class Util
         }
         return result;
     }
-    
+
     public static void removeOpenCVLogs()
     {
         File f = new File(System.getProperty("user.dir"));
-        for (File file : f.listFiles()) {
-            if (file.isFile() && file.getName().startsWith("hs_err_pid") && file.getName().endsWith(".log"))
+        for (File file : f.listFiles())
+        {
+            if (file.isFile() && file.getName().startsWith("hs_err_pid") && file.getName().endsWith(
+                    ".log"))
             {
                 file.delete();
             }
         }
     }
-    
+
     public static <V> void shuffleArray(V[] ar)
     {
-      Random rnd = new Random();
-      for (int i = ar.length - 1; i > 0; i--)
-      {
-        int index = rnd.nextInt(i + 1);
-        // Simple swap
-        V a = ar[index];
-        ar[index] = ar[i];
-        ar[i] = a;
-      }
+        Random rnd = new Random();
+        for (int i = ar.length - 1; i > 0; i--)
+        {
+            int index = rnd.nextInt(i + 1);
+            // Simple swap
+            V a = ar[index];
+            ar[index] = ar[i];
+            ar[i] = a;
+        }
     }
-    
+
     /**
-     * Adds a closing slash if not existing
+     * Adds a closing slash if not existing and the path is a directory
+     *
      * @param path the path to normalize
      * @return path with an ending slash
      */
     public static String normalizePath(String path)
     {
-        if (!path.endsWith("/") || !path.endsWith("\\"))
+        if (!new File(path).isFile())
         {
-            path += "/";
+            if (!path.endsWith("/") || !path.endsWith("\\"))
+            {
+                path += "/";
+            }
         }
         return path;
     }
-    
+
     public static Thread run(Runnable r)
     {
         Thread t = new Thread(r);
         t.start();
         return t;
     }
-    
+
     public static Thread timer(int triggerInMS, Runnable r)
     {
         return run(() ->
