@@ -7,6 +7,9 @@
 package de.bpetry.util;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +23,12 @@ import javafx.application.Platform;
 public class Util
 {
 
+    /**
+     * Executes a runnable after a given duration in the UI-Thread
+     *
+     * @param ms duration to wait in ms
+     * @param run runnable to execute
+     */
     public static void executeLaterUI(int ms, Runnable run)
     {
         new Thread(() ->
@@ -29,6 +38,12 @@ public class Util
         }).start();
     }
 
+    /**
+     * Makes the current thread sleep. Uses Thread.sleep and catches the
+     * InterruptedExpection.
+     *
+     * @param ms duration in ms
+     */
     public static void sleep(int ms)
     {
         try
@@ -41,6 +56,46 @@ public class Util
         }
     }
 
+    /**
+     * Formats a date
+     *
+     * @param date the date to format
+     * @param format the format the date should be converted to. E.g.
+     * "yyyyy-mm-dd hh:mm:ss"
+     * @return string representation of the date
+     */
+    public static String formatDate(Date date, String format)
+    {
+        SimpleDateFormat dt = new SimpleDateFormat(format);
+        return dt.format(date);
+    }
+
+    /**
+     * Parses a date
+     *
+     * @param date the date to parse as string
+     * @param format the format the date is in
+     * @return the parsed date or null if the date could not been parsed
+     */
+    public static Date parseDate(String date, String format)
+    {
+        SimpleDateFormat dt = new SimpleDateFormat(format);
+        try
+        {
+            return dt.parse(date);
+        }
+        catch (ParseException ex)
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Converts an double array into a string. Uses ';' as delimiter.
+     *
+     * @param array array to convert
+     * @return string representation of an array
+     */
     public static String doubleArrayToString(double[] array)
     {
         StringBuilder buf = new StringBuilder();
@@ -55,6 +110,12 @@ public class Util
         return buf.toString();
     }
 
+    /**
+     * Parses a string into a double array. Expects ';' as delimiter.
+     *
+     * @param s string to parse
+     * @return array
+     */
     public static double[] stringToDoubleArray(String s)
     {
         String[] onsetsS = s.split(";");

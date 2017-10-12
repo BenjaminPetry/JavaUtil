@@ -10,6 +10,7 @@ import javafx.fxml.Initializable;
 
 /**
  * Basic class for a window controller
+ *
  * @author Benjamin Petry
  */
 public abstract class WindowController implements Initializable
@@ -17,16 +18,17 @@ public abstract class WindowController implements Initializable
     //-------------------------------------------------------------------------
     ////////////////////////////  Private Variables ///////////////////////////
     //-------------------------------------------------------------------------
-    
+
     private Window window;
-    
+
     public Window getWindow()
     {
         return window;
     }
-    
+
     public void setWindow(Window window)
     {
         this.window = window;
     }
+
 }
