@@ -10,6 +10,7 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 
 /**
  *
@@ -20,14 +21,13 @@ public class HibernateSession
     //-------------------------------------------------------------------------
     ////////////////////////  Private Static Variables ////////////////////////
     //-------------------------------------------------------------------------
-    
+
     private static SessionFactory sessionFactory = null;
     private static Session openedSession = null;
-    
+
     //-------------------------------------------------------------------------
     ////////////////////////////  Init and Dispose ////////////////////////////
     //-------------------------------------------------------------------------
-    
     public static void init(HibernateConfig hbConfig)
     {
         if (sessionFactory != null)
@@ -38,7 +38,7 @@ public class HibernateSession
         sessionFactory = config.buildSessionFactory();
         openedSession = sessionFactory.openSession();
     }
-    
+
     public static void dispose()
     {
         if (openedSession != null)
@@ -46,36 +46,37 @@ public class HibernateSession
             openedSession.close();
             openedSession = null;
         }
-        if ( sessionFactory != null )
+        if (sessionFactory != null)
         {
             sessionFactory.close();
             sessionFactory = null;
         }
     }
-    
+
     //-------------------------------------------------------------------------
     /////////////////////////  Public Static Methods //////////////////////////
     //-------------------------------------------------------------------------
-
     public static <T extends Object> void delete(Iterable<T> iter)
     {
-        executeTransaction((session) -> {
+        executeTransaction((session) ->
+        {
             for (T obj : iter)
             {
-                session.delete( obj );
+                session.delete(obj);
             }
             return null;
         });
     }
-    
+
     public static void delete(Object... arrayOfObjects)
     {
         delete(Arrays.asList(arrayOfObjects));
     }
-    
+
     public static <T extends Object> void save(Iterable<T> iter)
     {
-        executeTransaction((session) -> {
+        executeTransaction((session) ->
+        {
             for (T obj : iter)
             {
                 session.saveOrUpdate(obj);
@@ -83,19 +84,35 @@ public class HibernateSession
             return null;
         });
     }
-    
+
     public static void save(Object... arrayOfObjects)
     {
         save(Arrays.asList(arrayOfObjects));
     }
-    
-    public static List get(String query)
+
+    public static int count(String query, Object... parameters)
     {
-        return executeTransaction((session) -> {
-            return session.createQuery(query).list();
+        List result = get("SELECT COUNT(*) " + query);
+        if (result.isEmpty())
+        {
+            return -1;
+        }
+        return (Integer) result.get(0);
+    }
+
+    public static List get(String query, Object... parameters)
+    {
+        return executeTransaction((session) ->
+        {
+            Query q = session.createQuery(query);
+            for (int n = 0; n < parameters.length; n++)
+            {
+                q.setParameter(n, parameters[n]);
+            }
+            return q.list();
         });
     }
-    
+
     public static List executeTransaction(TransactionAction action)
     {
         openedSession.beginTransaction();
@@ -103,36 +120,39 @@ public class HibernateSession
         openedSession.getTransaction().commit();
         return result;
     }
-    
+
     public static interface TransactionAction
     {
+
         public List perform(Session session);
     }
-    
+
     //-------------------------------------------------------------------------
     //////////////////////////  Private Static Methods ////////////////////////
     //-------------------------------------------------------------------------
-    
     private static Configuration createConfiguration(HibernateConfig config)
     {
         Configuration c = new Configuration();
-        c.setProperty("hibernate.connection.driver_class",  getDriverClass(config.getType()));
-        c.setProperty("hibernate.connection.url", getURL(config.getType(), config.getHost(), config.getDbname()));
-        c.setProperty("hibernate.connection.username", config.getUser() );
-        c.setProperty("hibernate.connection.password", config.getPassword() );
-        c.setProperty("hibernate.connection.pool_size", "1" );
-        c.setProperty("hibernate.dialect",  getDialect(config.getType()));
-        c.setProperty("hibernate.cache.provider_class", "org.hibernate.cache.internal.NoCacheProvider" );
-        c.setProperty("hibernate.show_sql", "true" );
-        c.setProperty("hibernate.hbm2ddl.auto", "update" );
+        c.setProperty("hibernate.connection.driver_class", getDriverClass(
+                config.getType()));
+        c.setProperty("hibernate.connection.url", getURL(config.getType(),
+                config.getHost(), config.getDbname()));
+        c.setProperty("hibernate.connection.username", config.getUser());
+        c.setProperty("hibernate.connection.password", config.getPassword());
+        c.setProperty("hibernate.connection.pool_size", "1");
+        c.setProperty("hibernate.dialect", getDialect(config.getType()));
+        c.setProperty("hibernate.cache.provider_class",
+                "org.hibernate.cache.internal.NoCacheProvider");
+        c.setProperty("hibernate.show_sql", "true");
+        c.setProperty("hibernate.hbm2ddl.auto", "update");
         for (Class cl : config.getClasses())
         {
             c.addAnnotatedClass(cl);
         }
-        
+
         return c;
     }
-    
+
     private static String getDialect(String type)
     {
         switch (type)
@@ -142,7 +162,7 @@ public class HibernateSession
         }
         return "";
     }
-    
+
     private static String getDriverClass(String type)
     {
         switch (type)
@@ -152,16 +172,15 @@ public class HibernateSession
         }
         return "";
     }
-    
+
     private static String getURL(String type, String host, String database)
     {
         switch (type)
         {
             case HibernateConfig.TYPE_MYSQL:
-                return "jdbc:"+type+"://" + host + "/" + database;
+                return "jdbc:" + type + "://" + host + "/" + database;
         }
         return "";
     }
-    
-    
+
 }
