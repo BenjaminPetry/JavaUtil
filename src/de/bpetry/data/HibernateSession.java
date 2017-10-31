@@ -5,6 +5,7 @@
  */
 package de.bpetry.data;
 
+import de.bpetry.util.Util;
 import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Session;
@@ -115,9 +116,14 @@ public class HibernateSession
 
     public static List executeTransaction(TransactionAction action)
     {
+        while (openedSession.getTransaction().isActive())
+        {
+            Util.sleep(10);
+        }
         openedSession.beginTransaction();
         List result = action.perform(openedSession);
         openedSession.getTransaction().commit();
+
         return result;
     }
 
@@ -139,7 +145,8 @@ public class HibernateSession
                 config.getHost(), config.getDbname()));
         c.setProperty("hibernate.connection.username", config.getUser());
         c.setProperty("hibernate.connection.password", config.getPassword());
-        c.setProperty("hibernate.connection.pool_size", "1");
+        c.setProperty("hibernate.connection.pool_size", "10");
+        c.setProperty("hibernate.connection.autocommit", "false");
         c.setProperty("hibernate.dialect", getDialect(config.getType()));
         c.setProperty("hibernate.cache.provider_class",
                 "org.hibernate.cache.internal.NoCacheProvider");
