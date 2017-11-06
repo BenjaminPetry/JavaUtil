@@ -7,6 +7,7 @@
 package de.bpetry.util;
 
 import javafx.beans.value.ObservableValue;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
 /**
@@ -28,11 +29,26 @@ public class GuiUtil
         // force the field to be numeric only
         field.textProperty().addListener(
                 (ObservableValue<? extends String> observable, String oldValue, String newValue) ->
+                {
+                    if (!newValue.matches("\\d*"))
+                    {
+                        field.setText(newValue.replaceAll("[^\\d.]", ""));
+                    }
+                });
+    }
+
+    /**
+     * Sets all items inside a comboBox to enumeration values
+     *
+     * @param box the combo box
+     * @param arrayOfEnumeration the enumeration array
+     */
+    public static void enumComboBox(ComboBox box, Enum[] arrayOfEnumeration)
+    {
+        box.getItems().clear();
+        for (Enum type : arrayOfEnumeration)
         {
-            if (!newValue.matches("\\d*"))
-            {
-                field.setText(newValue.replaceAll("[^\\d]", ""));
-            }
-        });
+            box.getItems().add(type);
+        }
     }
 }
