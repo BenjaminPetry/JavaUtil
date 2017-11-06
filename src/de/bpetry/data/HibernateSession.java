@@ -91,14 +91,14 @@ public class HibernateSession
         save(Arrays.asList(arrayOfObjects));
     }
 
-    public static int count(String query, Object... parameters)
+    public static long count(String query, Object... parameters)
     {
-        List result = get("SELECT COUNT(*) " + query);
+        List result = get("SELECT COUNT(*) " + query, parameters);
         if (result.isEmpty())
         {
             return -1;
         }
-        return (Integer) result.get(0);
+        return (long) result.get(0);
     }
 
     public static List get(String query, Object... parameters)

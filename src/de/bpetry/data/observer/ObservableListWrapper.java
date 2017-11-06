@@ -14,30 +14,31 @@ import java.util.ListIterator;
 
 /**
  * An observable array list
+ *
  * @author Benjamin Petry
  */
 public class ObservableListWrapper<E> extends ObservableCollectionWrapper<E> implements List<E>
 {
-    
+
     //-------------------------------------------------------------------------
     //////////////////////  Parent Methods Implementation /////////////////////
     //-------------------------------------------------------------------------
-    
     @Override
     public void setCollection(Collection<E> c)
     {
         if (!(c instanceof List))
         {
-            throw new IllegalArgumentException("ObservableListWrapper only accepts lists");
+            throw new IllegalArgumentException(
+                    "ObservableListWrapper only accepts lists");
         }
         super.setCollection(c);
     }
-    
+
     public List<E> getList()
     {
-        return (List<E>)getCollection();
+        return (List<E>) getCollection();
     }
-    
+
     public void setList(List<E> s)
     {
         super.setCollection(s);
@@ -79,8 +80,6 @@ public class ObservableListWrapper<E> extends ObservableCollectionWrapper<E> imp
         return getList().subList(fromIndex, toIndex);
     }
 
-    
-    
     @Override
     public boolean addAll(int index,
             Collection<? extends E> c)
@@ -119,6 +118,10 @@ public class ObservableListWrapper<E> extends ObservableCollectionWrapper<E> imp
     {
         E oldElement = getList().remove(index);
         throwEvent(new ListEvent(CollectionAction.Remove, oldElement, index));
+        for (int n = index; n < getList().size(); n++)
+        {
+            throwEvent(CollectionAction.Update, getList().get(n), n);
+        }
         return oldElement;
     }
 
@@ -127,13 +130,14 @@ public class ObservableListWrapper<E> extends ObservableCollectionWrapper<E> imp
     {
         return new ArrayList<>();
     }
-    
+
     public void moveElement(E element, int indexNew)
     {
         int indexOld = getList().indexOf(element);
         if (indexOld == -1)
         {
-            throw new IllegalArgumentException("Element is not in the list and hence, cannot be moved inside the list");
+            throw new IllegalArgumentException(
+                    "Element is not in the list and hence, cannot be moved inside the list");
         }
         else if (indexOld == indexNew)
         {
@@ -142,11 +146,13 @@ public class ObservableListWrapper<E> extends ObservableCollectionWrapper<E> imp
         int indexMin = Math.min(indexNew, indexOld);
         int indexMax = Math.max(indexNew, indexOld);
         int rotationDirection = (indexMax == indexOld) ? 1 : -1;
-        Collections.rotate(this.getList().subList(indexMin, indexMax+1),rotationDirection);
+        Collections.rotate(this.getList().subList(indexMin, indexMax + 1),
+                rotationDirection);
         for (int n = indexMin; n <= indexMax; n++)
         {
-            throwEvent(new ListEvent(CollectionAction.Update, this.getList().get(n), n));
+            throwEvent(new ListEvent(CollectionAction.Update,
+                    this.getList().get(n), n));
         }
     }
-    
+
 }
