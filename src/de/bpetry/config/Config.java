@@ -6,6 +6,7 @@
  */
 package de.bpetry.config;
 
+import de.bpetry.util.Log;
 import de.bpetry.util.Util;
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,8 +22,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Loads data from a configuration file
@@ -125,8 +124,7 @@ public class Config
             }
             catch (IOException ex)
             {
-                Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null,
-                        ex);
+                Log.error("Cannot load configuration file", ex);
             }
         }
         update();
@@ -156,7 +154,7 @@ public class Config
         }
         catch (IOException ex)
         {
-            Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            Log.error("Cannot save into configuration file", ex);
         }
         afterSave();
     }

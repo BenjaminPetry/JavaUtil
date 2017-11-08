@@ -6,6 +6,7 @@
  */
 package de.bpetry.data;
 
+import de.bpetry.util.Log;
 import de.bpetry.util.Util;
 import java.io.File;
 import java.io.FileWriter;
@@ -18,8 +19,6 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Generic SQL Database implementation of the IDataSink interface
@@ -65,17 +64,16 @@ public abstract class SQLDataSink implements IDataSink
             log = null;
             if (logPath != null && !logPath.isEmpty())
             {
-                String filename = Util.normalizePath(logPath)+"db_"+dateS+".sql.tmp";
+                String filename = Util.normalizePath(logPath) + "db_" + dateS + ".sql.tmp";
                 log = new FileWriter(new File(filename), true);
             }
             return true;
         }
         catch (Exception ex)
         {
-            Logger.getLogger(SQLDataSink.class.getName()).log(Level.SEVERE,
-                    null, ex);
+            Log.error("Could not connect to database", ex);
         }
-        
+
         return false;
     }
 
@@ -103,10 +101,10 @@ public abstract class SQLDataSink implements IDataSink
             }
             return true;
         }
-        catch (Exception e)
+        catch (SQLException | IOException ex)
         {
-            Logger.getLogger(SQLDataSink.class.getName()).log(Level.SEVERE,
-                    null, e);
+            Log.error("Could not close database connection",
+                    ex);
         }
         return false;
     }
@@ -119,7 +117,7 @@ public abstract class SQLDataSink implements IDataSink
         try
         {
             String query = "SELECT COUNT(*) FROM " + tableclause + " WHERE " + whereclause;
-            
+
             if (select(query, parameters) != null && resultSet.next())
             {
                 result = resultSet.getInt(1);
@@ -128,8 +126,7 @@ public abstract class SQLDataSink implements IDataSink
         }
         catch (SQLException e)
         {
-            Logger.getLogger(SQLDataSink.class.getName()).log(Level.SEVERE,
-                    null, e);
+            Log.error("Could not retrieve count result", e);
         }
         return result;
     }
@@ -180,20 +177,19 @@ public abstract class SQLDataSink implements IDataSink
                 if (keySet.first())
                 {
                     int id = keySet.getInt(1);
-                    logN("\t\tID\t"+id);
+                    logN("\t\tID\t" + id);
                     return id;
                 }
                 return 1;
             }
             catch (SQLException ex)
             {
-                Logger.getLogger(SQLDataSink.class.getName()).log(Level.SEVERE,
-                        null, ex);
+                Log.error("Could not retrieve id from insert result", ex);
             }
         }
         return -1;
     }
-    
+
     @Override
     public int update(String query, Object... parameters)
     {
@@ -253,7 +249,6 @@ public abstract class SQLDataSink implements IDataSink
     //-------------------------------------------------------------------------
     /////////////////////////////  Private Methods ////////////////////////////
     //-------------------------------------------------------------------------
-
     private boolean setQuery(String query, SQLCommand command)
     {
         try
@@ -271,14 +266,13 @@ public abstract class SQLDataSink implements IDataSink
             {
                 preparedStatement = connect.prepareStatement(query);
             }
-            logN("\t"+query);
+            logN("\t" + query);
             SQLDataSink.currentCommand = command;
             return true;
         }
         catch (SQLException ex)
         {
-            Logger.getLogger(SQLDataSink.class.getName()).log(Level.SEVERE,
-                    null, ex);
+            Log.error("Could not prepare sql query", ex);
         }
         return false;
     }
@@ -293,17 +287,19 @@ public abstract class SQLDataSink implements IDataSink
                 counter++;
                 if (parameter instanceof Timestamp)
                 {
-                    preparedStatement.setTimestamp(counter, (Timestamp)parameter);
+                    preparedStatement.setTimestamp(counter,
+                            (Timestamp) parameter);
                 }
                 else
                 {
                     preparedStatement.setObject(counter, parameter);
                 }
-                
-                String param = (parameter instanceof Timestamp) ? 
-                        (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")).format((Timestamp)parameter) :
-                        parameter.toString();
-                logN("\t\t"+counter+"\t"+param);
+
+                String param = (parameter instanceof Timestamp)
+                        ? (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")).format(
+                                (Timestamp) parameter)
+                        : parameter.toString();
+                logN("\t\t" + counter + "\t" + param);
             }
             if (currentCommand == SQLCommand.Select || currentCommand == SQLCommand.Count)
             {
@@ -317,13 +313,11 @@ public abstract class SQLDataSink implements IDataSink
         }
         catch (SQLException ex)
         {
-            Logger.getLogger(SQLDataSink.class.getName()).log(Level.SEVERE,
-                    null, ex);
+            Log.error("Could not execute sql query", ex);
         }
         return -1;
     }
-    
-    
+
     private void logN(String s)
     {
         if (log == null)
@@ -332,15 +326,13 @@ public abstract class SQLDataSink implements IDataSink
         }
         try
         {
-            log.write(s+"\n");
+            log.write(s + "\n");
         }
         catch (IOException ex)
         {
-            Logger.getLogger(SQLDataSink.class.getName()).log(Level.SEVERE, null,
-                    ex);
+            Log.error("Could not write database log", ex);
         }
     }
-
 
     //-------------------------------------------------------------------------
     ////////////////////////////  Protected Methods ///////////////////////////

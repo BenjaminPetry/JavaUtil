@@ -5,6 +5,7 @@
  */
 package de.bpetry.data;
 
+import de.bpetry.util.Log;
 import de.bpetry.util.Util;
 import java.util.Arrays;
 import java.util.List;
@@ -29,29 +30,49 @@ public class HibernateSession
     //-------------------------------------------------------------------------
     ////////////////////////////  Init and Dispose ////////////////////////////
     //-------------------------------------------------------------------------
-    public static void init(HibernateConfig hbConfig)
+    public static boolean init(HibernateConfig hbConfig)
     {
         if (sessionFactory != null)
         {
             dispose();
         }
-        Configuration config = createConfiguration(hbConfig);
-        sessionFactory = config.buildSessionFactory();
-        openedSession = sessionFactory.openSession();
+        try
+        {
+            Configuration config = createConfiguration(hbConfig);
+            sessionFactory = config.buildSessionFactory();
+            openedSession = sessionFactory.openSession();
+            Log.info("Hibernate session initialized");
+        }
+        catch (Exception ex)
+        {
+            Log.error("Could not initiate hibernate session", ex);
+            return false;
+        }
+        return true;
     }
 
-    public static void dispose()
+    public static boolean dispose()
     {
-        if (openedSession != null)
+        try
         {
-            openedSession.close();
-            openedSession = null;
+            if (openedSession != null)
+            {
+                openedSession.close();
+                openedSession = null;
+            }
+            if (sessionFactory != null)
+            {
+                sessionFactory.close();
+                sessionFactory = null;
+            }
+            Log.info("Hibernate session disposed");
         }
-        if (sessionFactory != null)
+        catch (Exception ex)
         {
-            sessionFactory.close();
-            sessionFactory = null;
+            Log.warning("Could not dispose existing hibernate session", ex);
+            return false;
         }
+        return true;
     }
 
     //-------------------------------------------------------------------------

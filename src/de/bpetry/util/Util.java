@@ -11,8 +11,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 
 /**
@@ -52,7 +50,7 @@ public class Util
         }
         catch (InterruptedException ex)
         {
-            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
+            Log.warning("Thread could not been interupted", ex);
         }
     }
 
@@ -86,6 +84,9 @@ public class Util
         }
         catch (ParseException ex)
         {
+            Log.warning(
+                    "Could not parse the date '" + date + "' with format '" + format + "'",
+                    ex);
             return null;
         }
     }
@@ -198,6 +199,22 @@ public class Util
             }
         }
         return path;
+    }
+
+    /**
+     * Creates the directory if it does not exists
+     *
+     * @param dir directory
+     * @return the created directory
+     */
+    public static File makeDir(String dir)
+    {
+        File f = new File(dir);
+        if (!f.exists() || !f.isDirectory())
+        {
+            f.mkdirs();
+        }
+        return f;
     }
 
     public static Thread run(Runnable r)

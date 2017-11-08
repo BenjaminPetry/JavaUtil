@@ -6,16 +6,15 @@
  */
 package de.bpetry.data;
 
-import de.bpetry.util.Util;
+import de.bpetry.util.Log;
 import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Static class to ease the access to the Database
+ *
  * @author Benjamin Petry
  */
 public class DB
@@ -23,17 +22,15 @@ public class DB
     //-------------------------------------------------------------------------
     ////////////////////////////////  Constants ///////////////////////////////
     //-------------------------------------------------------------------------
-    
+
     final public static long DATETIME_ZERO = 86400001; // in ms
-    
+
     //-------------------------------------------------------------------------
     ////////////////////////  Private Static Variables ////////////////////////
     //-------------------------------------------------------------------------
-
     private static IDataSink sink = null;
     private static DBConfig config;
-            
-    
+
     public static boolean init(DBConfig config)
     {
         if (sink != null)
@@ -41,7 +38,9 @@ public class DB
             dispose();
         }
         Reader initSourceReader = config.isAutoSetup() ? config.getInitResource() : null;
-        if (!DataSinkFactory.initDataSink(config.getType(), config.getHost(), config.getUser(), config.getPassword(), config.getDbname(), config.getPrefix(), config.getLogPath(), initSourceReader))
+        if (!DataSinkFactory.initDataSink(config.getType(), config.getHost(),
+                config.getUser(), config.getPassword(), config.getDbname(),
+                config.getPrefix(), config.getLogPath(), initSourceReader))
         {
             return false;
         }
@@ -49,28 +48,28 @@ public class DB
         DB.config = config;
         return true;
     }
-    
+
     public static void dispose()
     {
         DataSinkFactory.disposeDataSink();
         sink = null;
     }
-    
+
     //-------------------------------------------------------------------------
     /////////////////////////////  Public Methods /////////////////////////////
     //-------------------------------------------------------------------------
-    
     public static boolean setup()
     {
         return DataSinkFactory.setupDatabase(config.getInitResource());
     }
-    
+
     public static boolean isConnected()
     {
         return sink != null;
     }
-    
-    public static int count(String table, String whereclause, Object... parameters)
+
+    public static int count(String table, String whereclause,
+            Object... parameters)
     {
         return sink.count(table, whereclause, parameters);
     }
@@ -134,10 +133,8 @@ public class DB
     {
         return sink.deleteExecute(parameters);
     }
-    
-    
+
     // UTIL FUNCTIONS
-    
     public static Timestamp toTS(long msUTC)
     {
         if (msUTC == 0)
@@ -146,7 +143,7 @@ public class DB
         }
         return new Timestamp(msUTC);
     }
-    
+
     public static long fromTS(ResultSet set, String colLabel)
     {
         try
@@ -157,7 +154,7 @@ public class DB
         }
         catch (SQLException ex)
         {
-            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
+            Log.error("Cannot retrieve timestamp", ex);
         }
         return -1;
     }

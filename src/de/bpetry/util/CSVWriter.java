@@ -91,6 +91,7 @@ public class CSVWriter
         }
         catch (IOException ex)
         {
+            Log.error("Could not open csv file for writing", ex);
             writer = null;
             return false;
         }
@@ -107,6 +108,7 @@ public class CSVWriter
             }
             catch (IOException ex)
             {
+                Log.error("Could not close csv file", ex);
                 return false;
             }
             finally
@@ -213,6 +215,7 @@ public class CSVWriter
         }
         catch (IOException ex)
         {
+            Log.error("Could not write into csv file", ex);
             return false;
         }
         return true;
