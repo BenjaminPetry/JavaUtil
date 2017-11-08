@@ -6,7 +6,11 @@
  */
 package de.bpetry.util;
 
+import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -231,5 +235,19 @@ public class Util
             Util.sleep(triggerInMS);
             r.run();
         });
+    }
+
+    public static boolean openUrl(String url)
+    {
+        try
+        {
+            Desktop.getDesktop().browse(new URI(url));
+            return true;
+        }
+        catch (IOException | URISyntaxException ex)
+        {
+            Log.error("Could not open " + url, ex);
+            return false;
+        }
     }
 }
