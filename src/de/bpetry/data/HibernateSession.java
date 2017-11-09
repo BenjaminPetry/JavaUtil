@@ -124,9 +124,19 @@ public class HibernateSession
 
     public static List get(String query, Object... parameters)
     {
+        return getWithLimit(query, -1, parameters);
+    }
+
+    public static List getWithLimit(String query, int maxResults,
+            Object... parameters)
+    {
         return executeTransaction((session) ->
         {
             Query q = session.createQuery(query);
+            if (maxResults >= 0)
+            {
+                q.setMaxResults(maxResults);
+            }
             for (int n = 0; n < parameters.length; n++)
             {
                 q.setParameter(n, parameters[n]);
