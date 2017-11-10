@@ -26,6 +26,8 @@ public class Log
     //-------------------------------------------------------------------------
 
     public static final String LOG_PATH = "log/";
+    private static String currentLogFile = null;
+    private static Handler currentFileHandler = null;
 
     //-------------------------------------------------------------------------
     /////////////////////////  Public Static Methods //////////////////////////
@@ -35,7 +37,7 @@ public class Log
      *
      * @param path path for the file. Use null for the standard path (LOG_PATH)
      * @param filename the filename of the log file. Use null for the format:
-     * log_[yyyyy-mm-dd_hh-mm-ss].log
+     * log_[yyyy-MM-dd_hh-mm-ss].log
      */
     public static void init(String path, String filename)
     {
@@ -46,16 +48,16 @@ public class Log
         if (filename == null)
         {
             String date = Util.formatDate(new Date(),
-                    "yyyyy-mm-dd_hh-mm-ss");
+                    "yyyy-MM-dd_hh-mm-ss");
             filename = "log_" + date + ".log";
         }
-        String file = Util.normalizePath(path) + filename;
+        currentLogFile = Util.normalizePath(path) + filename;
         try
         {
-            File f = new File(file);
+            File f = new File(currentLogFile);
             Util.makeDir(f.getParent());
-            Handler fh = new FileHandler(f.getAbsolutePath());
-            Logger.getLogger("").addHandler(fh);
+            currentFileHandler = new FileHandler(f.getAbsolutePath());
+            Logger.getLogger("").addHandler(currentFileHandler);
         }
         catch (IOException | SecurityException ex)
         {
@@ -63,6 +65,19 @@ public class Log
             return;
         }
         Log.info("Logging initialized");
+    }
+
+    public static String getCurrentFile()
+    {
+        return currentLogFile;
+    }
+
+    public static void flush()
+    {
+        if (currentFileHandler != null)
+        {
+            currentFileHandler.flush();
+        }
     }
 
     public static void info(String message)
