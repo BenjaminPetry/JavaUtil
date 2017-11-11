@@ -101,7 +101,6 @@ public class Window<T extends Initializable>
     //-------------------------------------------------------------------------
     public void show()
     {
-
         Platform.runLater(() ->
         {
             this.window.show();
@@ -114,6 +113,15 @@ public class Window<T extends Initializable>
         Platform.runLater(() ->
         {
             this.window.hide();
+        });
+    }
+
+    public void close()
+    {
+
+        Platform.runLater(() ->
+        {
+            this.window.close();
         });
     }
 
