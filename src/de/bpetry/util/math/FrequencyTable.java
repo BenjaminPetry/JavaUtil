@@ -25,29 +25,44 @@ public class FrequencyTable<T extends Object>
     ////////////////////////////  Private Variables ///////////////////////////
     //-------------------------------------------------------------------------
     private Object[] uniqueValues = new Object[0];
+    private Set<T> uniqueValuesTmp = new HashSet<>();
     private Map<Tuple<T, T>, Long> tableFields = new HashMap<>();
     private long sum = 0;
 
     //-------------------------------------------------------------------------
     //////////////////////////////  Constructor ///////////////////////////////
     //-------------------------------------------------------------------------
+    public FrequencyTable()
+    {
+    }
+
     public FrequencyTable(List<Tuple<T, T>> pairs)
     {
-        Set<T> uniqueValuesTmp = new HashSet<>();
-        sum = pairs.size();
         for (Tuple<T, T> pair : pairs)
         {
-            uniqueValuesTmp.add(pair.Item1);
-            uniqueValuesTmp.add(pair.Item2);
-            tableFields.put(pair,
-                    (tableFields.containsKey(pair)) ? tableFields.get(pair) + 1 : 1);
+            addValue(pair);
         }
-        this.uniqueValues = uniqueValuesTmp.toArray();
     }
 
     //-------------------------------------------------------------------------
     ///////////////////////  Getter and Setter Methods ////////////////////////
     //-------------------------------------------------------------------------
+    public void addValue(T value1, T value2)
+    {
+        addValue(new Tuple<>(value1, value2));
+    }
+
+    public final void addValue(Tuple<T, T> value)
+    {
+        if (uniqueValuesTmp.add(value.Item1) || uniqueValuesTmp.add(value.Item2))
+        {
+            this.uniqueValues = uniqueValuesTmp.toArray();
+        }
+        tableFields.put(value,
+                (tableFields.containsKey(value)) ? tableFields.get(value) + 1 : 1);
+        sum += 1;
+    }
+
     public T[] getUniqueValues()
     {
         return (T[]) uniqueValues;
