@@ -6,6 +6,8 @@
  */
 package de.bpetry.util;
 
+import java.util.Objects;
+
 /**
  * Describes a tuple
  *
@@ -24,4 +26,26 @@ public class Tuple<U, V>
         this.Item1 = item1;
         this.Item2 = item2;
     }
+
+    @Override
+    public int hashCode()
+    {
+        int hash = 7;
+        hash = 17 * hash + Objects.hashCode(this.Item1);
+        hash = 17 * hash + Objects.hashCode(this.Item2);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null || getClass() != obj.getClass())
+        {
+            return false;
+        }
+        final Tuple<?, ?> other = (Tuple<?, ?>) obj;
+        return (Objects.equals(this.Item1, other.Item1) && Objects.equals(
+                this.Item2, other.Item2));
+    }
+
 }
