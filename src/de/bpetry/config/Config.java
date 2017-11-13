@@ -101,6 +101,11 @@ public class Config
         p.setProperty(key, value);
     }
 
+    public void setBool(String key, boolean value)
+    {
+        p.setProperty(key, (value) ? "true" : "false");
+    }
+
     public void setNull(String key)
     {
         set(key, "null");
