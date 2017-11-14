@@ -51,6 +51,7 @@ public class WebBrowser extends VBox
     private final Label state;
     private final Button go;
     private final ProgressIndicator indicator;
+    private boolean hideEmptyPage = false;
 
     private final HBox toolbar = new HBox();
 
@@ -135,17 +136,31 @@ public class WebBrowser extends VBox
     }
 
     /**
+     * Sets whether the webview should be hidden when an empty page is loaded
+     *
+     * @param hide true to hide the webview on an empty page
+     */
+    public void hideOnEmptyPage(boolean hide)
+    {
+        hideEmptyPage = hide;
+    }
+
+    /**
      * Loads a url
      *
      * @param url the url to load
      */
     public void load(String url)
     {
+        if (url == null)
+        {
+            url = "";
+        }
         String tmp = url.replace(":\\\\", "://");
         boolean isIP = tmp.matches(
                 ".*(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}).*");
         boolean isWebpage = tmp.matches("(.*(://).*)?\\w+?\\.\\w\\w.*");
-        if (!isIP && !isWebpage)
+        if (!isIP && !isWebpage && !tmp.isEmpty())
         {
             try
             {
@@ -157,11 +172,12 @@ public class WebBrowser extends VBox
                 tmp = "https://www.google.com";
             }
         }
-        else if (!tmp.matches(".*(://).*"))
+        else if (!tmp.matches(".*(://).*") && !tmp.isEmpty())
         {
             tmp = "http://" + tmp;
         }
         this.url.setText(tmp);
+        this.view.setVisible(!this.hideEmptyPage || !tmp.isEmpty());
         engine.load(tmp);
     }
 
@@ -286,7 +302,8 @@ public class WebBrowser extends VBox
      */
     public void addToolbar(Node toolbar, int index)
     {
-        int indexAdjusted = Math.min(index, this.getChildren().size() - 1);
+        int indexAdjusted = Math.max(0, Math.min(index,
+                this.getChildren().size() - 1));
         this.getChildren().add(indexAdjusted, toolbar);
     }
 
@@ -297,8 +314,7 @@ public class WebBrowser extends VBox
      */
     public void addToolbar(Node toolbar)
     {
-        int index = Math.max(0, this.getChildren().size() - 2);
-        addToolbar(toolbar, index);
+        addToolbar(toolbar, this.getChildren().size()); // will be corrected automatically
     }
 
     /**
