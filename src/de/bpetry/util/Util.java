@@ -237,6 +237,44 @@ public class Util
         });
     }
 
+    public static boolean executeJar(File f)
+    {
+        if (!f.exists())
+        {
+            return false;
+        }
+        try
+        {
+            Process proc = Runtime.getRuntime().exec(new String[]
+            {
+                "java", "-jar", f.getAbsolutePath()
+            });
+            sleep(100);
+            if (proc != null && proc.isAlive())
+            {
+                return true;
+            }
+        }
+        catch (IOException ex)
+        {
+            Log.error(
+                    "Could not start jar '" + f.getName() + "' using exec command",
+                    ex);
+        }
+        try
+        {
+            Desktop.getDesktop().open(f);
+            return true;
+        }
+        catch (IOException ex)
+        {
+            Log.error(
+                    "Could not open jar '" + f.getName() + "' using desktop.open command",
+                    ex);
+            return false;
+        }
+    }
+
     public static boolean openUrl(String url)
     {
         try
