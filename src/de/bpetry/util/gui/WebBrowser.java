@@ -83,32 +83,33 @@ public class WebBrowser extends VBox
         engine.getLoadWorker().stateProperty().addListener((
                 ObservableValue<? extends Worker.State> observable,
                 Worker.State oldValue, Worker.State newValue) ->
-        {
-            switch (newValue)
-            {
-                case FAILED:
-                    state.setText("Could not load webpage");
-                case CANCELLED:
-                case READY:
-                case SUCCEEDED:
-                    back.setDisable(!isBackPossible());
-                    forward.setDisable(!isForwardPossible());
-                    refresh.setDisable(isBlankPage());
-                    indicator.setVisible(false);
-                    Icon.setIcon(go, Icon.PLAY, "Go");
-                    break;
-                case SCHEDULED:
-                    setUrlField(engine.getLocation());
-                case RUNNING:
-                    state.setText("");
-                    back.setDisable(true);
-                    forward.setDisable(true);
-                    refresh.setDisable(true);
-                    indicator.setVisible(true);
-                    Icon.setIcon(go, Icon.STOP, "Cancel");
-                    break;
-            }
-        });
+                {
+                    switch (newValue)
+                    {
+                        case FAILED:
+                            state.setText("Could not load webpage");
+                        case CANCELLED:
+                        case READY:
+                        case SUCCEEDED:
+                            checkURL(engine.getLocation());
+                            back.setDisable(!isBackPossible());
+                            forward.setDisable(!isForwardPossible());
+                            refresh.setDisable(isBlankPage());
+                            indicator.setVisible(false);
+                            Icon.setIcon(go, Icon.PLAY, "Go");
+                            break;
+                        case SCHEDULED:
+                            setUrlField(engine.getLocation());
+                        case RUNNING:
+                            state.setText("");
+                            back.setDisable(true);
+                            forward.setDisable(true);
+                            refresh.setDisable(true);
+                            indicator.setVisible(true);
+                            Icon.setIcon(go, Icon.STOP, "Cancel");
+                            break;
+                    }
+                });
         initPane();
     }
 
@@ -133,6 +134,7 @@ public class WebBrowser extends VBox
     public void setUrlField(String url)
     {
         this.url.setText(url);
+        checkURL(url);
     }
 
     /**
@@ -415,4 +417,14 @@ public class WebBrowser extends VBox
         this.getChildren().add(toolbar);
         this.getChildren().add(view);
     }
+
+    private void checkURL(String url)
+    {
+        URLType type = URLType.getType(url);
+        if (type != URLType.URL)
+        {
+            this.state.setText("Warning: Cannot open " + type.toString());
+        }
+    }
+
 }
