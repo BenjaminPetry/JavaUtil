@@ -1,5 +1,5 @@
 /*
- * Augmented Human Lab
+ * Benjamin Petry (www.bpetry.de)
  * Copyright 2017 by Benjamin Petry.
  * This software is provided on an "AS IS" BASIS,
  * without warranties or conditions of any kind, either express or implied.
