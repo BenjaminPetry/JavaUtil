@@ -63,7 +63,7 @@ public class Util
      *
      * @param date the date to format
      * @param format the format the date should be converted to. E.g.
-     * "yyyy-MM-dd hh:mm:ss.SSS"
+     * "yyyy-MM-dd HH:mm:ss.SSS"
      * @return string representation of the date
      */
     public static String formatDate(Date date, String format)
