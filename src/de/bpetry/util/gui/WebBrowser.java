@@ -6,6 +6,7 @@
  */
 package de.bpetry.util.gui;
 
+import de.bpetry.util.Util;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import javafx.beans.value.ObservableValue;
@@ -50,8 +51,10 @@ public class WebBrowser extends VBox
     private final TextField url;
     private final Label state;
     private final Button go;
+    private final Button goExternal;
     private final ProgressIndicator indicator;
     private boolean hideEmptyPage = false;
+    private boolean isCancelled = false;
 
     private final HBox toolbar = new HBox();
 
@@ -71,6 +74,8 @@ public class WebBrowser extends VBox
         forward = Icon.createIconTooltipButton(Icon.FORWARD, "Go forward", ">");
         refresh = Icon.createIconTooltipButton(Icon.REFRESH, "Refresh page", "@");
         go = Icon.createIconTooltipButton(Icon.PLAY, "Go", "Go");
+        goExternal = Icon.createIconTooltipButton(Icon.EXTERNAL_LINK,
+                "Open in external browser", "->");
         state = new Label();
         indicator = new ProgressIndicator();
         url = new TextField("");
@@ -99,7 +104,14 @@ public class WebBrowser extends VBox
                             Icon.setIcon(go, Icon.PLAY, "Go");
                             break;
                         case SCHEDULED:
-                            setUrlField(engine.getLocation());
+                            if (isCancelled)
+                            {
+                                isCancelled = false;
+                            }
+                            else
+                            {
+                                setUrlField(engine.getLocation());
+                            }
                         case RUNNING:
                             state.setText("");
                             back.setDisable(true);
@@ -154,33 +166,10 @@ public class WebBrowser extends VBox
      */
     public void load(String url)
     {
-        if (url == null)
-        {
-            url = "";
-        }
-        String tmp = url.replace(":\\\\", "://");
-        boolean isIP = tmp.matches(
-                ".*(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}).*");
-        boolean isWebpage = tmp.matches("(.*(://).*)?\\w+?\\.\\w\\w.*");
-        if (!isIP && !isWebpage && !tmp.isEmpty())
-        {
-            try
-            {
-                String searchTerm = URLEncoder.encode(tmp, "UTF-8");
-                tmp = "https://www.google.com/search?q=" + searchTerm;
-            }
-            catch (UnsupportedEncodingException ex)
-            {
-                tmp = "https://www.google.com";
-            }
-        }
-        else if (!tmp.matches(".*(://).*") && !tmp.isEmpty())
-        {
-            tmp = "http://" + tmp;
-        }
-        this.url.setText(tmp);
-        this.view.setVisible(!this.hideEmptyPage || !tmp.isEmpty());
-        engine.load(tmp);
+        String formatedUrl = formatUrlInput(url);
+        this.url.setText(formatedUrl);
+        this.view.setVisible(!this.hideEmptyPage || !formatedUrl.isEmpty());
+        engine.load(formatedUrl);
     }
 
     /**
@@ -188,6 +177,7 @@ public class WebBrowser extends VBox
      */
     public void cancel()
     {
+        isCancelled = true;
         engine.load(null);
     }
 
@@ -379,10 +369,19 @@ public class WebBrowser extends VBox
         toolbar.getChildren().add(new Separator(Orientation.VERTICAL));
         toolbar.getChildren().add(url);
         toolbar.getChildren().add(go);
+        toolbar.getChildren().add(goExternal);
         toolbar.getChildren().add(indicator);
         toolbar.getChildren().add(state);
 
         // ACTIONS
+        goExternal.setOnAction((event) ->
+        {
+            String formatedUrl = formatUrlInput(url.getText());
+            if (!formatedUrl.isEmpty())
+            {
+                Util.openUrl(formatedUrl);
+            }
+        });
         go.setOnAction((event) ->
         {
             if (engine.getLoadWorker().isRunning())
@@ -425,6 +424,43 @@ public class WebBrowser extends VBox
         {
             this.state.setText("Warning: Cannot open " + type.toString());
         }
+    }
+
+    /**
+     * This method takes an URL or text in general as input and generates a
+     * usable URL. E.g. if http:// is forgotten it adds it. If the input are
+     * search terms it will create a google search link
+     *
+     * @param url the text to transform to a URL
+     * @return a URL
+     */
+    private String formatUrlInput(String url)
+    {
+        if (url == null)
+        {
+            url = "";
+        }
+        String tmp = url.replace(":\\\\", "://");
+        boolean isIP = tmp.matches(
+                ".*(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}).*");
+        boolean isWebpage = tmp.matches("(.*(://).*)?\\w+?\\.\\w\\w.*");
+        if (!isIP && !isWebpage && !tmp.isEmpty())
+        {
+            try
+            {
+                String searchTerm = URLEncoder.encode(tmp, "UTF-8");
+                tmp = "https://www.google.com/search?q=" + searchTerm;
+            }
+            catch (UnsupportedEncodingException ex)
+            {
+                tmp = "https://www.google.com";
+            }
+        }
+        else if (!tmp.matches(".*(://).*") && !tmp.isEmpty())
+        {
+            tmp = "http://" + tmp;
+        }
+        return tmp;
     }
 
 }
