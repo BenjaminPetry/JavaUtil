@@ -112,6 +112,17 @@ public class HibernateSession
         save(Arrays.asList(arrayOfObjects));
     }
 
+    public static long countByField(String query, String field,
+            Object... parameters)
+    {
+        List result = get("SELECT COUNT(" + field + ") " + query, parameters);
+        if (result.isEmpty())
+        {
+            return -1;
+        }
+        return (long) result.get(0);
+    }
+
     public static long count(String query, Object... parameters)
     {
         List result = get("SELECT COUNT(*) " + query, parameters);
