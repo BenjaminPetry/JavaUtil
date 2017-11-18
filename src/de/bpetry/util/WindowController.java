@@ -56,6 +56,33 @@ public abstract class WindowController implements Initializable
     }
 
     //-------------------------------------------------------------------------
+    /////////////////////////////  Public Methods /////////////////////////////
+    //-------------------------------------------------------------------------
+    public void show()
+    {
+        if (this.window != null)
+        {
+            this.window.show();
+        }
+    }
+
+    public void hide()
+    {
+        if (this.window != null)
+        {
+            this.window.hide();
+        }
+    }
+
+    public void close()
+    {
+        if (this.window != null)
+        {
+            this.window.close();
+        }
+    }
+
+    //-------------------------------------------------------------------------
     ////////////////////////////  Protected Methods ///////////////////////////
     //-------------------------------------------------------------------------
     /**

@@ -37,7 +37,7 @@ public class Log
      *
      * @param path path for the file. Use null for the standard path (LOG_PATH)
      * @param filename the filename of the log file. Use null for the format:
-     * log_[yyyy-MM-dd_hh-mm-ss].log
+     * log_[yyyy-MM-dd_HH-mm-ss].log
      */
     public static void init(String path, String filename)
     {
@@ -48,7 +48,7 @@ public class Log
         if (filename == null)
         {
             String date = Util.formatDate(new Date(),
-                    "yyyy-MM-dd_hh-mm-ss");
+                    "yyyy-MM-dd_HH-mm-ss");
             filename = "log_" + date + ".log";
         }
         currentLogFile = Util.normalizePath(path) + filename;
