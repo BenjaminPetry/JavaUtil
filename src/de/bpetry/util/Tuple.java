@@ -48,4 +48,10 @@ public class Tuple<U, V>
                 this.Item2, other.Item2));
     }
 
+    @Override
+    public String toString()
+    {
+        return "Tuple{" + "Item1=" + Item1 + ", Item2=" + Item2 + '}';
+    }
+
 }
