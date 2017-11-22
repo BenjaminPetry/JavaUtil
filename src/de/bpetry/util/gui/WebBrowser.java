@@ -139,6 +139,16 @@ public class WebBrowser extends VBox
     }
 
     /**
+     * Returns the text in the url textfield
+     *
+     * @return url of the textfield
+     */
+    public String getUrlField()
+    {
+        return this.url.getText();
+    }
+
+    /**
      * Sets the text in the url field
      *
      * @param url field
@@ -426,6 +436,9 @@ public class WebBrowser extends VBox
         }
     }
 
+    //-------------------------------------------------------------------------
+    /////////////////////////  Public Static Methods //////////////////////////
+    //-------------------------------------------------------------------------
     /**
      * This method takes an URL or text in general as input and generates a
      * usable URL. E.g. if http:// is forgotten it adds it. If the input are
@@ -434,17 +447,14 @@ public class WebBrowser extends VBox
      * @param url the text to transform to a URL
      * @return a URL
      */
-    private String formatUrlInput(String url)
+    public static String formatUrlInput(String url)
     {
         if (url == null)
         {
             url = "";
         }
         String tmp = url.replace(":\\\\", "://");
-        boolean isIP = tmp.matches(
-                ".*(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}).*");
-        boolean isWebpage = tmp.matches("(.*(://).*)?\\w+?\\.\\w\\w.*");
-        if (!isIP && !isWebpage && !tmp.isEmpty())
+        if (!isValidURL(url) && !tmp.isEmpty())
         {
             try
             {
@@ -460,7 +470,24 @@ public class WebBrowser extends VBox
         {
             tmp = "http://" + tmp;
         }
+
         return tmp;
+    }
+
+    public static boolean isValidURL(String url)
+    {
+        return isIP(url) || isWebpage(url);
+    }
+
+    public static boolean isIP(String s)
+    {
+        return s.matches(
+                "(.*(://))?(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}).*");
+    }
+
+    public static boolean isWebpage(String s)
+    {
+        return s.matches("(.*(://).*)?\\w+?\\.\\w\\w.*");
     }
 
 }

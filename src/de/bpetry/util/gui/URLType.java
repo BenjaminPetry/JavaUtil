@@ -6,6 +6,8 @@
  */
 package de.bpetry.util.gui;
 
+import java.util.regex.Pattern;
+
 /**
  * Describes the potential type of a URL
  *
@@ -47,7 +49,8 @@ public enum URLType
     public static URLType getType(String url)
     {
         String tmpUrl = url.toLowerCase();
-        if (tmpUrl.endsWith(".pdf") || tmpUrl.contains("type=pdf"))
+        if (tmpUrl.endsWith(".pdf") || tmpUrl.contains("type=pdf") || Pattern.compile(
+                ".*\\.pdf[\\W].*").matcher(url).matches())
         {
             return URLType.PDF;
         }
