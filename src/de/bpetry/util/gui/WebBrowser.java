@@ -108,7 +108,7 @@ public class WebBrowser extends VBox
                             {
                                 isCancelled = false;
                             }
-                            else
+                            else if (!isBlankPage())
                             {
                                 setUrlField(engine.getLocation());
                             }
