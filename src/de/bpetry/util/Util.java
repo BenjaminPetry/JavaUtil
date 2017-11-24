@@ -16,6 +16,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 import javafx.application.Platform;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 
 /**
  * Utility functions
@@ -287,5 +289,12 @@ public class Util
             Log.error("Could not open " + url, ex);
             return false;
         }
+    }
+
+    public static void copyToClipboard(String text)
+    {
+        ClipboardContent content = new ClipboardContent();
+        content.putString(text);
+        Clipboard.getSystemClipboard().setContent(content);
     }
 }

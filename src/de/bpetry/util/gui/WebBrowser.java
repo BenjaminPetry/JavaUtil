@@ -21,6 +21,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
@@ -52,6 +53,7 @@ public class WebBrowser extends VBox
     private final Label state;
     private final Button go;
     private final Button goExternal;
+    private final Button copyUrl;
     private final ProgressIndicator indicator;
     private boolean hideEmptyPage = false;
     private boolean isCancelled = false;
@@ -76,6 +78,8 @@ public class WebBrowser extends VBox
         go = Icon.createIconTooltipButton(Icon.PLAY, "Go", "Go");
         goExternal = Icon.createIconTooltipButton(Icon.EXTERNAL_LINK,
                 "Open in external browser", "->");
+        copyUrl = Icon.createIconTooltipButton(Icon.COPY,
+                "Copy URL to clipboard", "Copy");
         state = new Label();
         indicator = new ProgressIndicator();
         url = new TextField("");
@@ -88,40 +92,40 @@ public class WebBrowser extends VBox
         engine.getLoadWorker().stateProperty().addListener((
                 ObservableValue<? extends Worker.State> observable,
                 Worker.State oldValue, Worker.State newValue) ->
-                {
-                    switch (newValue)
+        {
+            switch (newValue)
+            {
+                case FAILED:
+                    state.setText("Could not load webpage");
+                case CANCELLED:
+                case READY:
+                case SUCCEEDED:
+                    checkURL(engine.getLocation());
+                    back.setDisable(!isBackPossible());
+                    forward.setDisable(!isForwardPossible());
+                    refresh.setDisable(isBlankPage());
+                    indicator.setVisible(false);
+                    Icon.setIcon(go, Icon.PLAY, "Go");
+                    break;
+                case SCHEDULED:
+                    if (isCancelled)
                     {
-                        case FAILED:
-                            state.setText("Could not load webpage");
-                        case CANCELLED:
-                        case READY:
-                        case SUCCEEDED:
-                            checkURL(engine.getLocation());
-                            back.setDisable(!isBackPossible());
-                            forward.setDisable(!isForwardPossible());
-                            refresh.setDisable(isBlankPage());
-                            indicator.setVisible(false);
-                            Icon.setIcon(go, Icon.PLAY, "Go");
-                            break;
-                        case SCHEDULED:
-                            if (isCancelled)
-                            {
-                                isCancelled = false;
-                            }
-                            else if (!isBlankPage())
-                            {
-                                setUrlField(engine.getLocation());
-                            }
-                        case RUNNING:
-                            state.setText("");
-                            back.setDisable(true);
-                            forward.setDisable(true);
-                            refresh.setDisable(true);
-                            indicator.setVisible(true);
-                            Icon.setIcon(go, Icon.STOP, "Cancel");
-                            break;
+                        isCancelled = false;
                     }
-                });
+                    else if (!isBlankPage())
+                    {
+                        setUrlField(engine.getLocation());
+                    }
+                case RUNNING:
+                    state.setText("");
+                    back.setDisable(true);
+                    forward.setDisable(true);
+                    refresh.setDisable(true);
+                    indicator.setVisible(true);
+                    Icon.setIcon(go, Icon.STOP, "Cancel");
+                    break;
+            }
+        });
         initPane();
     }
 
@@ -364,7 +368,8 @@ public class WebBrowser extends VBox
     private void initToolbar()
     {
         toolbar.setPadding(new Insets(5, 5, 0, 5));
-        url.setPrefWidth(400);
+        url.setPrefWidth(150);
+        HBox.setHgrow(url, Priority.SOMETIMES);
         indicator.setPrefSize(20, 20);
         indicator.setMinSize(20, 20);
         indicator.setVisible(false);
@@ -380,10 +385,18 @@ public class WebBrowser extends VBox
         toolbar.getChildren().add(url);
         toolbar.getChildren().add(go);
         toolbar.getChildren().add(goExternal);
+        toolbar.getChildren().add(copyUrl);
         toolbar.getChildren().add(indicator);
         toolbar.getChildren().add(state);
 
         // ACTIONS
+        copyUrl.setOnAction((event) ->
+        {
+            if (url.getText() != null && !url.getText().isEmpty())
+            {
+                Util.copyToClipboard(url.getText());
+            }
+        });
         goExternal.setOnAction((event) ->
         {
             String formatedUrl = formatUrlInput(url.getText());
