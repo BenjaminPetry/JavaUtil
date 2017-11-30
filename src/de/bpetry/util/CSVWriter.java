@@ -223,7 +223,7 @@ public class CSVWriter
 
     /**
      * Converts an object into a string and surrounds it with double quotes if
-     * it contains double quotes, the field- or line-separator.
+     * it contains double quotes, the field- or line-separator or a line-break.
      *
      * @param fieldO the object to convert (can be null -> "")
      * @return the field as csv-string
@@ -232,7 +232,8 @@ public class CSVWriter
     {
         String field = (fieldO == null) ? "" : fieldO.toString();
         boolean needToEscape = field.contains("\"") || field.contains(
-                fieldSeperator) || field.contains(lineSeparator);
+                fieldSeperator) || field.contains(lineSeparator)
+                || field.contains("\n");
         if (needToEscape)
         {
             field = "\"" + field.replace("\"", "\"\"") + "\"";
