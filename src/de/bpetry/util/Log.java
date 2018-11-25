@@ -117,6 +117,14 @@ public class Log
         String methodName = (info == null) ? "" : info.getMethodName();
         Logger.getLogger(className).logp(level, className, methodName, message,
                 ex);
+        if (ex != null)
+        {
+            Throwable ta = ex;
+            while ((ta = ta.getCause()) != null)
+            {
+                Logger.getLogger(className).log(level, "Caused by", ta);
+            }
+        }
     }
 
     //-------------------------------------------------------------------------

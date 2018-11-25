@@ -4,8 +4,9 @@
  * This software is provided on an "AS IS" BASIS,
  * without warranties or conditions of any kind, either express or implied.
  */
-package de.bpetry.util;
+package de.bpetry.gui;
 
+import de.bpetry.util.Log;
 import java.io.IOException;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;

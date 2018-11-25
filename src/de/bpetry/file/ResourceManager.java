@@ -4,8 +4,10 @@
  * This software is provided on an "AS IS" BASIS,
  * without warranties or conditions of any kind, either express or implied.
  */
-package de.bpetry.util;
+package de.bpetry.file;
 
+import de.bpetry.util.Log;
+import de.bpetry.util.Util;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;

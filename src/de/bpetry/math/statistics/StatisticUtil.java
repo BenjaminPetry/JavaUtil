@@ -4,7 +4,7 @@
  * This software is provided on an "AS IS" BASIS,
  * without warranties or conditions of any kind, either express or implied.
  */
-package de.bpetry.util.math.statistics;
+package de.bpetry.math.statistics;
 
 import de.bpetry.util.Tuple;
 import java.util.List;

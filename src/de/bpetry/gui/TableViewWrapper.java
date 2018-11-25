@@ -4,7 +4,7 @@
  * This software is provided on an "AS IS" BASIS,
  * without warranties or conditions of any kind, either express or implied.
  */
-package de.bpetry.util;
+package de.bpetry.gui;
 
 import java.util.HashMap;
 import java.util.List;
