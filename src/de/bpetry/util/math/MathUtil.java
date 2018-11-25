@@ -6,9 +6,6 @@
  */
 package de.bpetry.util.math;
 
-import de.bpetry.util.Tuple;
-import java.util.List;
-
 /**
  * Math util functions
  *
@@ -31,50 +28,4 @@ public class MathUtil
         return (double) Math.round(value * scale) / scale;
     }
 
-    /**
-     * Calculates Cohen's Kappa based on a list of ratings
-     *
-     * @param <T> the rating type (e.g. integers for Likert scales)
-     * @param ratingPairs the rating pairs of 2 reviewers
-     * @return Cohen's Kappa
-     */
-    public static <T extends Object> double cohensKappa(
-            List<Tuple<T, T>> ratingPairs)
-    {
-        FrequencyTable<T> table = new FrequencyTable<>(ratingPairs);
-        return cohensKappa(table);
-    }
-
-    /**
-     * Calculates Cohen's Kappa based on a frequency table
-     *
-     * @param <T> the rating type (e.g. integers for Likert scales)
-     * @param ratingTable the table that contains the frequencies for each
-     * rating pair
-     * @return Cohen's Kappa;
-     */
-    public static <T extends Object> double cohensKappa(
-            FrequencyTable<T> ratingTable)
-    {
-        int length = ratingTable.length();
-        double agreement = 0;
-        int[] agreementByChanceX = new int[length];
-        int[] agreementByChanceY = new int[length];
-        for (int x = 0; x < length; x++)
-        {
-            for (int y = 0; y < length; y++)
-            {
-                long count = ratingTable.getField(x, y);
-                agreement += (x == y) ? count : 0;
-                agreementByChanceX[x] += count;
-                agreementByChanceY[y] += count;
-            }
-        }
-        double agreementByChanceSum = 0;
-        for (int n = 0; n < length; n++)
-        {
-            agreementByChanceSum += agreementByChanceX[n] * agreementByChanceY[n] / (double) ratingTable.getSum();
-        }
-        return (agreement - agreementByChanceSum) / (ratingTable.getSum() - agreementByChanceSum);
-    }
 }
