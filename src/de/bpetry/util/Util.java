@@ -15,6 +15,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -273,6 +275,20 @@ public class Util
             Log.error(
                     "Could not open jar '" + f.getName() + "' using desktop.open command",
                     ex);
+            return false;
+        }
+    }
+    
+    public static boolean openFile(File f)
+    {
+        try
+        {
+            Desktop.getDesktop().open(f);
+            return true;
+        }
+        catch (IOException ex)
+        {
+            Log.error("Could not open file '" + f.getAbsolutePath()+"'.", ex);
             return false;
         }
     }
